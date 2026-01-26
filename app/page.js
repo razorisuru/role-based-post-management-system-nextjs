@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getPublishedPosts } from '@/app/actions/posts'
+import { getCurrentUser } from '@/lib/dal'
 
 export default async function Home() {
   const { posts = [] } = await getPublishedPosts()
+  const user = await getCurrentUser()
 
   const getInitials = (name) => {
     return name
@@ -45,16 +47,42 @@ export default async function Home() {
             </Link>
           </nav>
           <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Get Started
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard/posts/new">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Write
+                  </Button>
+                </Link>
+                <Link href="/dashboard">
+                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Avatar className="h-5 w-5 mr-2">
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-xs">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    Dashboard
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -147,7 +175,7 @@ export default async function Home() {
                 <h2 className="text-2xl font-bold text-foreground">Latest Posts</h2>
                 <p className="text-muted-foreground mt-1">Fresh insights from our writers</p>
               </div>
-              <Link href="/login">
+              <Link href={user ? "/dashboard/posts/new" : "/login"}>
                 <Button variant="outline" className="border-border hover:bg-accent/20">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -225,26 +253,28 @@ export default async function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 px-4 bg-accent/10 border-t border-border/30">
-          <div className="container mx-auto max-w-2xl text-center">
-            <h3 className="text-2xl font-bold text-foreground mb-4">Ready to share your story?</h3>
-            <p className="text-muted-foreground mb-6">
-              Join our community of writers and readers. Create an account to start publishing your posts.
-            </p>
-            <div className="flex items-center justify-center gap-4">
-              <Link href="/signup">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                  Create Account
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button size="lg" variant="outline" className="border-border">
-                  Sign In
-                </Button>
-              </Link>
+        {!user && (
+          <section className="py-16 px-4 bg-accent/10 border-t border-border/30">
+            <div className="container mx-auto max-w-2xl text-center">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Ready to share your story?</h3>
+              <p className="text-muted-foreground mb-6">
+                Join our community of writers and readers. Create an account to start publishing your posts.
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <Link href="/signup">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Create Account
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline" className="border-border">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
 
       {/* Footer */}
