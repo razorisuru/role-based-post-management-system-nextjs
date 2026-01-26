@@ -2,7 +2,7 @@ import { DashboardHeader } from '@/components/dashboard/header'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
 
 export const metadata = {
-  title: 'Dashboard | RoleBase',
+  title: 'Dashboard | NextBlog',
   description: 'Dashboard - Role-Based Access Control System',
 }
 

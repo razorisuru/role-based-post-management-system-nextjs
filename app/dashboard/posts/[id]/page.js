@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
   })
 
   return {
-    title: post ? `${post.title} | RoleBase` : 'Post Not Found',
+    title: post ? `${post.title} | NextBlog` : 'Post Not Found',
     description: 'View post details',
   }
 }

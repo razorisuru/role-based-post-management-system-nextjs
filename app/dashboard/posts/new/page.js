@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { PostForm } from '../post-form'
 
 export const metadata = {
-  title: 'New Post | RoleBase',
+  title: 'New Post | NextBlog',
   description: 'Create a new post',
 }
 

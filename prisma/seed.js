@@ -114,11 +114,11 @@ async function main() {
   const hashedPassword = await bcrypt.hash('Admin@123', 12)
   
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@rolebase.com' },
+    where: { email: 'admin@nextblog.com' },
     update: {},
     create: {
       name: 'Admin User',
-      email: 'admin@rolebase.com',
+      email: 'admin@nextblog.com',
       password: hashedPassword,
       phone: '+1 (555) 000-0001',
       status: 'ACTIVE',
@@ -129,9 +129,9 @@ async function main() {
 
   // Create a test user for each role
   const testUsers = [
-    { name: 'Moderator User', email: 'moderator@rolebase.com', role: 'moderator' },
-    { name: 'Regular User', email: 'user@rolebase.com', role: 'user' },
-    { name: 'Guest User', email: 'guest@rolebase.com', role: 'guest' },
+    { name: 'Moderator User', email: 'moderator@nextblog.com', role: 'moderator' },
+    { name: 'Regular User', email: 'user@nextblog.com', role: 'user' },
+    { name: 'Guest User', email: 'guest@nextblog.com', role: 'guest' },
   ]
 
   const testPassword = await bcrypt.hash('Test@123', 12)
@@ -155,10 +155,10 @@ async function main() {
   console.log('✅ Database seeded successfully!')
   console.log('')
   console.log('📋 Test Accounts:')
-  console.log('  Admin:     admin@rolebase.com / Admin@123')
-  console.log('  Moderator: moderator@rolebase.com / Test@123')
-  console.log('  User:      user@rolebase.com / Test@123')
-  console.log('  Guest:     guest@rolebase.com / Test@123')
+  console.log('  Admin:     admin@nextblog.com / Admin@123')
+  console.log('  Moderator: moderator@nextblog.com / Test@123')
+  console.log('  User:      user@nextblog.com / Test@123')
+  console.log('  Guest:     guest@nextblog.com / Test@123')
   console.log('')
 }
 

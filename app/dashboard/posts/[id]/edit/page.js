@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
   })
 
   return {
-    title: post ? `Edit: ${post.title} | RoleBase` : 'Post Not Found',
+    title: post ? `Edit: ${post.title} | NextBlog` : 'Post Not Found',
     description: 'Edit post',
   }
 }

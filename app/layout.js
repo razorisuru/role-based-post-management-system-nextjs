@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "RoleBase - User Management",
-  description: "Role-based access control system",
+  title: "NextBlog - Share Your Stories",
+  description: "A modern blogging platform built with Next.js",
 };
 
 export default function RootLayout({ children }) {

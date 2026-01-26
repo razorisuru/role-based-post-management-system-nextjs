@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RolePermissionsManager } from './role-permissions-manager'
 
 export const metadata = {
-  title: 'Settings | RoleBase',
+  title: 'Settings | NextBlog',
   description: 'Manage roles and permissions',
 }
 

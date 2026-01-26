@@ -14,7 +14,7 @@ export async function DashboardHeader() {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-primary">RoleBase</span>
+            <span className="text-xl font-bold text-primary">NextBlog</span>
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">

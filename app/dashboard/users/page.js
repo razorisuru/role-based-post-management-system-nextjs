@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { UsersTable } from './users-table'
 
 export const metadata = {
-  title: 'Users | RoleBase',
+  title: 'Users | NextBlog',
   description: 'Manage users',
 }
 

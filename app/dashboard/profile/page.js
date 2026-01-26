@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 
 export const metadata = {
-  title: 'Profile | RoleBase',
+  title: 'Profile | NextBlog',
   description: 'Your profile',
 }
 

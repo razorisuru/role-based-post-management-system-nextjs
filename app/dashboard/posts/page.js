@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { PostsTable } from './posts-table'
 
 export const metadata = {
-  title: 'Posts | RoleBase',
+  title: 'Posts | NextBlog',
   description: 'Manage posts',
 }
 
