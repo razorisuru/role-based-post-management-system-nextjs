@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with all required fields
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  phone         String?
+  avatar        String?
+  status        UserStatus @default(ACTIVE)
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id])
+  sessions      Session[]
+  posts         Post[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+  @@index([roleId])
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// Post model for blog/content
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String?
+  status      PostStatus @default(DRAFT)
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([authorId])
+  @@index([status])
+  @@index([publishedAt])
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// Role model for RBAC
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  isDefault   Boolean          @default(false)
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([name])
+}
+
+// Permission model for granular access control
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  resource    String           // e.g., 'users', 'dashboard', 'settings'
+  action      String           // e.g., 'read', 'create', 'update', 'delete', 'access', 'manage'
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([resource, action])
+  @@index([resource])
+}
+
+// Junction table for Role-Permission many-to-many relationship
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+// Session model for tracking user sessions
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
