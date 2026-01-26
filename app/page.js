@@ -288,6 +288,9 @@ export default async function Home() {
             <p className="text-muted-foreground text-sm">
               Built with Next.js, Prisma, and Shadcn UI
             </p>
+            <a href="https://razorisuru.com" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+              by RaZoR Isuru
+            </a>
           </div>
         </div>
       </footer>
