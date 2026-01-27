@@ -12,7 +12,7 @@ export async function DashboardSidebar() {
       href: '/dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
         </svg>
       ),
       show: true,
@@ -61,27 +61,47 @@ export async function DashboardSidebar() {
   ]
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 min-h-[calc(100vh-4rem)] border-r border-border/20 bg-background">
-      <nav className="flex-1 p-4 space-y-2">
+    <aside className="hidden lg:flex flex-col w-64 min-h-[calc(100vh-4rem)] border-r border-border/40 bg-background/50">
+      {/* Quick Action */}
+      <div className="p-4 border-b border-border/40">
+        <Link
+          href="/dashboard/posts/new"
+          className="flex items-center justify-center gap-2 w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          New Post
+        </Link>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-1">
+        <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Navigation</p>
         {navItems
           .filter((item) => item.show)
           .map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 px-3 py-2 text-muted-foreground rounded-lg hover:bg-accent/20 hover:text-primary transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 text-muted-foreground rounded-lg hover:bg-accent/50 hover:text-foreground transition-all duration-200 group"
             >
-              {item.icon}
+              <span className="group-hover:text-primary transition-colors">{item.icon}</span>
               <span className="font-medium">{item.title}</span>
             </Link>
           ))}
       </nav>
 
-      <div className="p-4 border-t border-border/20">
-        <div className="px-3 py-2 text-xs text-muted-foreground">
-          <p>Logged in as</p>
-          <p className="font-medium text-foreground truncate">{user?.name}</p>
-          <p className="capitalize text-primary">{user?.role?.name}</p>
+      {/* User Card */}
+      <div className="p-4 border-t border-border/40">
+        <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-accent/30">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm font-semibold shadow-sm">
+            {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+            <p className="text-xs text-primary capitalize">{user?.role?.name}</p>
+          </div>
         </div>
       </div>
     </aside>

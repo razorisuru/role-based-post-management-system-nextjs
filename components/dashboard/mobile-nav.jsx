@@ -32,7 +32,7 @@ export function MobileNav({ user, canManageSettings, canViewUsers }) {
       href: '/dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
         </svg>
       ),
       show: true,
@@ -95,37 +95,62 @@ export function MobileNav({ user, canManageSettings, canViewUsers }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden">
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 hover:bg-accent/50">
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0">
-        <SheetHeader className="p-4 border-b border-border/20">
-          <SheetTitle className="text-left text-primary">NextBlog</SheetTitle>
+      <SheetContent side="left" className="w-80 p-0">
+        {/* Header with Logo */}
+        <SheetHeader className="p-5 border-b border-border/40">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/20">
+              <svg className="h-5 w-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <SheetTitle className="text-lg font-bold">NextBlog</SheetTitle>
+          </div>
         </SheetHeader>
         
         {/* User Info */}
-        <div className="p-4 border-b border-border/20">
+        <div className="p-5 border-b border-border/40 bg-accent/20">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-border">
+            <Avatar className="h-12 w-12 ring-2 ring-border shadow-sm">
               <AvatarImage src={user?.avatar} alt={user?.name} />
-              <AvatarFallback className="bg-primary text-primary-foreground">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+              <p className="text-sm font-semibold text-foreground truncate">{user?.name}</p>
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              <p className="text-xs text-primary capitalize">{user?.role?.name}</p>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary capitalize mt-1">
+                {user?.role?.name}
+              </span>
             </div>
           </div>
         </div>
 
+        {/* Quick Action */}
+        <div className="p-4 border-b border-border/40">
+          <Link
+            href="/dashboard/posts/new"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center gap-2 w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 shadow-sm transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Post
+          </Link>
+        </div>
+
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1">
+          <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Navigation</p>
           {navItems
             .filter((item) => item.show)
             .map((item) => (
@@ -133,33 +158,36 @@ export function MobileNav({ user, canManageSettings, canViewUsers }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive(item.href)
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-accent/20 hover:text-foreground'
+                    ? 'bg-primary/10 text-primary shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                 }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.title}</span>
+                {isActive(item.href) && (
+                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                )}
               </Link>
             ))}
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border/20 mt-auto">
+        <div className="p-4 border-t border-border/40 mt-auto space-y-1">
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 text-muted-foreground rounded-lg hover:bg-accent/20 hover:text-foreground transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 text-muted-foreground rounded-lg hover:bg-accent/50 hover:text-foreground transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            <span className="font-medium">Back to Home</span>
+            <span className="font-medium">View Site</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 w-full text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 w-full text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
