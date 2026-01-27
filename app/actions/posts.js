@@ -64,25 +64,92 @@ export async function getMyPosts() {
   }
 }
 
-// Get published posts (public)
-export async function getPublishedPosts() {
+// Get published posts (public) with pagination
+export async function getPublishedPosts(page = 1, limit = 12) {
   try {
-    const posts = await db.post.findMany({
-      where: { status: 'PUBLISHED' },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
+    const skip = (page - 1) * limit
+
+    const [posts, totalCount] = await Promise.all([
+      db.post.findMany({
+        where: { status: 'PUBLISHED' },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
           },
         },
-      },
-      orderBy: { publishedAt: 'desc' },
-    })
-    return { posts }
+        orderBy: { publishedAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      db.post.count({
+        where: { status: 'PUBLISHED' },
+      }),
+    ])
+
+    const totalPages = Math.ceil(totalCount / limit)
+
+    return { 
+      posts, 
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      }
+    }
   } catch (error) {
     console.error('Failed to get published posts:', error)
+    return { error: 'Failed to get posts' }
+  }
+}
+
+// Get all posts with pagination (for dashboard)
+export async function getPostsPaginated(page = 1, limit = 10, showAll = false, userId = null) {
+  try {
+    const skip = (page - 1) * limit
+    const where = showAll ? {} : { authorId: userId }
+
+    const [posts, totalCount] = await Promise.all([
+      db.post.findMany({
+        where,
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      db.post.count({ where }),
+    ])
+
+    const totalPages = Math.ceil(totalCount / limit)
+
+    return { 
+      posts, 
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      }
+    }
+  } catch (error) {
+    console.error('Failed to get posts:', error)
     return { error: 'Failed to get posts' }
   }
 }

@@ -136,6 +136,7 @@ async function main() {
 
   const testPassword = await bcrypt.hash('Test@123', 12)
   
+  const createdUsers = [adminUser]
   for (const userData of testUsers) {
     const user = await prisma.user.upsert({
       where: { email: userData.email },
@@ -148,8 +149,89 @@ async function main() {
         roleId: roles[userData.role].id,
       },
     })
+    createdUsers.push(user)
     console.log(`  ✓ ${userData.role} user created: ${user.email}`)
   }
+
+  // Create 100 posts
+  console.log('📰 Creating posts...')
+  
+  const postTitles = [
+    'Getting Started with Next.js 15',
+    'Understanding React Server Components',
+    'Building Scalable APIs with Node.js',
+    'Introduction to TypeScript',
+    'CSS Grid Layout Complete Guide',
+    'Mastering Flexbox in 2024',
+    'Database Design Best Practices',
+    'Authentication Strategies for Modern Apps',
+    'State Management with Zustand',
+    'Prisma ORM Deep Dive',
+    'Building Real-time Applications',
+    'Docker for Developers',
+    'CI/CD Pipeline Setup Guide',
+    'Testing React Applications',
+    'Performance Optimization Tips',
+    'Web Security Fundamentals',
+    'GraphQL vs REST API',
+    'Microservices Architecture',
+    'Serverless Computing Guide',
+    'Mobile-First Design Principles',
+    'Accessibility in Web Development',
+    'SEO Best Practices for Developers',
+    'Git Workflow Strategies',
+    'Code Review Best Practices',
+    'Technical Documentation Guide',
+  ]
+
+  const postContents = [
+    'This comprehensive guide covers everything you need to know about modern web development. We will explore the latest features and best practices that will help you build better applications.',
+    'In this article, we dive deep into the core concepts and provide practical examples that you can apply to your own projects. Understanding these fundamentals is crucial for any developer.',
+    'Learn how to implement this feature step by step with clear explanations and code samples. By the end of this tutorial, you will have a solid understanding of the topic.',
+    'Explore the pros and cons of different approaches and find out which one is best suited for your specific use case. Making the right choice early can save you time and effort later.',
+    'This tutorial walks you through the entire process from start to finish, including common pitfalls to avoid and tips for success. Follow along and build something amazing.',
+    'Discover the hidden features and advanced techniques that will take your skills to the next level. These insights come from years of real-world experience.',
+    'A practical guide with real-world examples and use cases that demonstrate how to apply these concepts effectively in production environments.',
+    'Everything you need to know to get started quickly and efficiently. We have distilled the essential information into an easy-to-follow format.',
+    'Deep dive into the architecture and design patterns that power modern applications. Understanding the underlying principles will make you a better developer.',
+    'Tips and tricks from industry experts that will help you write cleaner, more maintainable code. These practices have been proven in large-scale applications.',
+  ]
+
+  const statuses = ['DRAFT', 'PUBLISHED', 'ARCHIVED']
+  
+  // Delete existing posts to avoid duplicates on re-seed
+  await prisma.post.deleteMany({})
+  
+  for (let i = 1; i <= 100; i++) {
+    const titleIndex = (i - 1) % postTitles.length
+    const contentIndex = (i - 1) % postContents.length
+    const authorIndex = (i - 1) % createdUsers.length
+    const statusIndex = i <= 70 ? 1 : (i <= 90 ? 0 : 2) // 70 published, 20 draft, 10 archived
+    
+    const title = `${postTitles[titleIndex]} - Part ${Math.ceil(i / postTitles.length)}`
+    const content = `${postContents[contentIndex]}\n\n${postContents[(contentIndex + 1) % postContents.length]}\n\nThis is post number ${i} in our series. Stay tuned for more content!`
+    const excerpt = postContents[contentIndex].substring(0, 150) + '...'
+    
+    const createdDate = new Date()
+    createdDate.setDate(createdDate.getDate() - (100 - i)) // Spread posts over last 100 days
+    
+    const post = await prisma.post.create({
+      data: {
+        title,
+        content,
+        excerpt,
+        status: statuses[statusIndex],
+        authorId: createdUsers[authorIndex].id,
+        publishedAt: statuses[statusIndex] === 'PUBLISHED' ? createdDate : null,
+        createdAt: createdDate,
+      },
+    })
+    
+    if (i % 25 === 0) {
+      console.log(`  ✓ Created ${i} posts...`)
+    }
+  }
+  console.log(`  ✓ All 100 posts created!`)
 
   console.log('')
   console.log('✅ Database seeded successfully!')

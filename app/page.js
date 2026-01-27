@@ -1,34 +1,42 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { getPublishedPosts } from '@/app/actions/posts'
 import { getCurrentUser } from '@/lib/dal'
+import { HomePageSkeleton } from '@/app/posts-skeleton'
 
-export default async function Home() {
-  const { posts = [] } = await getPublishedPosts()
+const getInitials = (name) => {
+  return name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'U'
+}
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+export default async function Home({ searchParams }) {
+  const params = await searchParams
+  const page = Number(params?.page) || 1
   const user = await getCurrentUser()
-
-  const getInitials = (name) => {
-    return name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'U'
-  }
-
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
-  // Get featured post (first post)
-  const featuredPost = posts[0]
-  const remainingPosts = posts.slice(1)
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -88,8 +96,67 @@ export default async function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Featured Post / Hero Section */}
-        {featuredPost ? (
+        <Suspense fallback={<HomePageSkeleton />}>
+          <PostsContent page={page} user={user} />
+        </Suspense>
+
+        {/* CTA Section */}
+        {!user && (
+          <section className="py-16 px-4 bg-accent/10 border-t border-border/30">
+            <div className="container mx-auto max-w-2xl text-center">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Ready to share your story?</h3>
+              <p className="text-muted-foreground mb-6">
+                Join our community of writers and readers. Create an account to start publishing your posts.
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <Link href="/signup">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Create Account
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline" className="border-border">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border/30 py-8 bg-card/50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-primary">NextBlog</span>
+              <span className="text-muted-foreground text-sm">© 2026</span>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Built with Next.js, Prisma, and Shadcn UI
+            </p>
+            <a href="https://razorisuru.com" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+              by RaZoR Isuru
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+async function PostsContent({ page, user }) {
+  const { posts = [], pagination } = await getPublishedPosts(page, 12)
+
+  const featuredPost = page === 1 ? posts[0] : null
+  const remainingPosts = page === 1 ? posts.slice(1) : posts
+
+  return (
+    <>
+      {/* Featured Post / Hero Section */}
+      {page === 1 && (
+        featuredPost ? (
           <section className="border-b border-border/30">
             <div className="container mx-auto px-4 py-16">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -165,27 +232,35 @@ export default async function Home() {
               </div>
             </div>
           </section>
-        )}
+        )
+      )}
 
-        {/* Posts Grid */}
-        <section id="posts" className="py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center justify-between mb-10">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">Latest Posts</h2>
-                <p className="text-muted-foreground mt-1">Fresh insights from our writers</p>
-              </div>
-              <Link href={user ? "/dashboard/posts/new" : "/login"}>
-                <Button variant="outline" className="border-border hover:bg-accent/20">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Write Post
-                </Button>
-              </Link>
+      {/* Posts Grid */}
+      <section id="posts" className="py-16 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {page === 1 ? 'Latest Posts' : `Posts - Page ${page}`}
+              </h2>
+              <p className="text-muted-foreground mt-1">
+                {pagination?.totalCount
+                  ? `${pagination.totalCount} posts total`
+                  : 'Fresh insights from our writers'}
+              </p>
             </div>
+            <Link href={user ? "/dashboard/posts/new" : "/login"}>
+              <Button variant="outline" className="border-border hover:bg-accent/20">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Write Post
+              </Button>
+            </Link>
+          </div>
 
-            {remainingPosts.length > 0 ? (
+          {remainingPosts.length > 0 ? (
+            <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {remainingPosts.map((post) => (
                   <Link key={post.id} href={`/posts/${post.id}`} className="group">
@@ -225,75 +300,123 @@ export default async function Home() {
                   </Link>
                 ))}
               </div>
-            ) : !featuredPost ? (
-              <Card className="border-border/30 border-dashed">
-                <CardContent className="py-20 text-center">
-                  <div className="w-16 h-16 bg-accent/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">No posts yet</h3>
-                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Be the first to share your thoughts with the community. Start writing today!
-                  </p>
-                  <Link href="/login">
-                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                      Create Your First Post
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">More posts coming soon...</p>
-              </div>
-            )}
-          </div>
-        </section>
 
-        {/* CTA Section */}
-        {!user && (
-          <section className="py-16 px-4 bg-accent/10 border-t border-border/30">
-            <div className="container mx-auto max-w-2xl text-center">
-              <h3 className="text-2xl font-bold text-foreground mb-4">Ready to share your story?</h3>
-              <p className="text-muted-foreground mb-6">
-                Join our community of writers and readers. Create an account to start publishing your posts.
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <Link href="/signup">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    Create Account
-                  </Button>
-                </Link>
+              {/* Pagination */}
+              {pagination && pagination.totalPages > 1 && (
+                <div className="mt-12">
+                  <PostsPagination
+                    currentPage={page}
+                    totalPages={pagination.totalPages}
+                    basePath="/"
+                  />
+                </div>
+              )}
+            </>
+          ) : !featuredPost ? (
+            <Card className="border-border/30 border-dashed">
+              <CardContent className="py-20 text-center">
+                <div className="w-16 h-16 bg-accent/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No posts yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Be the first to share your thoughts with the community. Start writing today!
+                </p>
                 <Link href="/login">
-                  <Button size="lg" variant="outline" className="border-border">
-                    Sign In
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Create Your First Post
                   </Button>
                 </Link>
-              </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">More posts coming soon...</p>
             </div>
-          </section>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border/30 py-8 bg-card/50">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-primary">NextBlog</span>
-              <span className="text-muted-foreground text-sm">© 2026</span>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Built with Next.js, Prisma, and Shadcn UI
-            </p>
-            <a href="https://razorisuru.com" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-              by RaZoR Isuru
-            </a>
-          </div>
+          )}
         </div>
-      </footer>
-    </div>
+      </section>
+    </>
+  )
+}
+
+function PostsPagination({ currentPage, totalPages, basePath }) {
+  const getPageNumbers = () => {
+    const pages = []
+    const showEllipsisStart = currentPage > 3
+    const showEllipsisEnd = currentPage < totalPages - 2
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      pages.push(1)
+
+      if (showEllipsisStart) {
+        pages.push('ellipsis-start')
+      }
+
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
+
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) {
+          pages.push(i)
+        }
+      }
+
+      if (showEllipsisEnd) {
+        pages.push('ellipsis-end')
+      }
+
+      if (!pages.includes(totalPages)) {
+        pages.push(totalPages)
+      }
+    }
+
+    return pages
+  }
+
+  const getPageUrl = (page) => {
+    if (page === 1) return basePath
+    return `${basePath}?page=${page}`
+  }
+
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            href={getPageUrl(currentPage - 1)}
+            disabled={currentPage <= 1}
+          />
+        </PaginationItem>
+
+        {getPageNumbers().map((pageNum, index) => (
+          <PaginationItem key={index}>
+            {pageNum === 'ellipsis-start' || pageNum === 'ellipsis-end' ? (
+              <PaginationEllipsis />
+            ) : (
+              <PaginationLink
+                href={getPageUrl(pageNum)}
+                isActive={pageNum === currentPage}
+              >
+                {pageNum}
+              </PaginationLink>
+            )}
+          </PaginationItem>
+        ))}
+
+        <PaginationItem>
+          <PaginationNext
+            href={getPageUrl(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
   )
 }
