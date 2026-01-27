@@ -47,8 +47,8 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-primary">Settings</h1>
-        <p className="text-muted-foreground mt-1">Manage roles and permissions dynamically</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary">Settings</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage roles and permissions dynamically</p>
       </div>
 
       <Card className="border-border/30">

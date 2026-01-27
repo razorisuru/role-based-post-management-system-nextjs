@@ -101,7 +101,7 @@ export function RolePermissionsManager({ roles, permissions, groupedPermissions 
       {/* Permissions Grid */}
       {selectedRole && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h3 className="text-sm font-medium text-muted-foreground">
               Permissions for <span className="text-primary capitalize">{currentRole?.name}</span>
             </h3>

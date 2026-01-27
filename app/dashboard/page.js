@@ -22,10 +22,10 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-primary">
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary">
           Welcome back, {user?.name}!
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Here&apos;s an overview of your dashboard
         </p>
       </div>
@@ -39,14 +39,14 @@ export default async function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">Name</p>
               <p className="font-medium text-foreground">{user?.name}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium text-foreground">{user?.email}</p>
+              <p className="font-medium text-foreground break-all">{user?.email}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Phone</p>
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
 
       {/* Stats Cards - Only show if user has permissions */}
       {(canViewUsers || canManageSettings) && (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           <Card className="border-border/30">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">

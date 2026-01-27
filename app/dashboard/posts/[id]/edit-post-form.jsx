@@ -108,16 +108,16 @@ export function EditPostForm({ post }) {
             </Select>
           </div>
 
-          <div className="flex items-center justify-end gap-4 pt-4">
-            <Link href={`/dashboard/posts/${post.id}`}>
-              <Button type="button" variant="outline" className="border-border/50">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 pt-4">
+            <Link href={`/dashboard/posts/${post.id}`} className="w-full sm:w-auto">
+              <Button type="button" variant="outline" className="w-full sm:w-auto border-border/50">
                 Cancel
               </Button>
             </Link>
             <Button 
               type="submit" 
               disabled={pending}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {pending ? 'Updating...' : 'Update Post'}
             </Button>

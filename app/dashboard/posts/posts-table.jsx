@@ -7,6 +7,7 @@ import { deletePost, updatePostStatus } from '@/app/actions/posts'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,52 +81,117 @@ export function PostsTable({ posts, currentUserId, canReadAll }) {
     return post.authorId === currentUserId || canReadAll
   }
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No posts found. Create your first post!
+      </div>
+    )
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border/30">
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Title</th>
-            {canReadAll && (
-              <th className="text-left py-3 px-4 font-medium text-muted-foreground">Author</th>
-            )}
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Created</th>
-            <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {posts.map((post) => (
-            <tr key={post.id} className="border-b border-border/10 hover:bg-accent/10">
-              <td className="py-3 px-4">
-                <div>
+    <>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {posts.map((post) => (
+          <Card key={post.id} className="border-border/30">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
                   <Link 
                     href={`/dashboard/posts/${post.id}`}
-                    className="font-medium text-foreground hover:text-primary transition-colors"
+                    className="font-medium text-foreground hover:text-primary transition-colors line-clamp-2"
                   >
                     {post.title}
                   </Link>
                   {post.excerpt && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                       {post.excerpt}
                     </p>
                   )}
                 </div>
-              </td>
-              {canReadAll && (
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-7 w-7">
+                {canModifyPost(post) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/posts/${post.id}/edit`}>Edit</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleStatusChange(post.id, 'DRAFT')}>
+                        Draft
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleStatusChange(post.id, 'PUBLISHED')}>
+                        Published
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleStatusChange(post.id, 'ARCHIVED')}>
+                        Archived
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem 
+                            onSelect={(e) => e.preventDefault()}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{post.title}"? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(post.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+              
+              <div className="flex items-center flex-wrap gap-2 mt-3">
+                {canReadAll && (
+                  <div className="flex items-center gap-1.5">
+                    <Avatar className="h-5 w-5">
                       <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                      <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
                         {getInitials(post.author.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-muted-foreground">{post.author.name}</span>
+                    <span className="text-xs text-muted-foreground">{post.author.name}</span>
                   </div>
-                </td>
-              )}
-              <td className="py-3 px-4">
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(post.createdAt)}
+                </span>
                 {canModifyPost(post) ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -136,22 +202,13 @@ export function PostsTable({ posts, currentUserId, canReadAll }) {
                     <DropdownMenuContent>
                       <DropdownMenuLabel>Change Status</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(post.id, 'DRAFT')}
-                        className="cursor-pointer"
-                      >
+                      <DropdownMenuItem onClick={() => handleStatusChange(post.id, 'DRAFT')}>
                         Draft
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(post.id, 'PUBLISHED')}
-                        className="cursor-pointer"
-                      >
+                      <DropdownMenuItem onClick={() => handleStatusChange(post.id, 'PUBLISHED')}>
                         Published
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(post.id, 'ARCHIVED')}
-                        className="cursor-pointer"
-                      >
+                      <DropdownMenuItem onClick={() => handleStatusChange(post.id, 'ARCHIVED')}>
                         Archived
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -159,64 +216,140 @@ export function PostsTable({ posts, currentUserId, canReadAll }) {
                 ) : (
                   getStatusBadge(post.status)
                 )}
-              </td>
-              <td className="py-3 px-4 text-muted-foreground">
-                {new Date(post.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </td>
-              <td className="py-3 px-4 text-right">
-                {canModifyPost(post) && (
-                  <div className="flex items-center justify-end gap-2">
-                    <Link href={`/dashboard/posts/${post.id}/edit`}>
-                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                        Edit
-                      </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border/30">
+              <th className="text-left py-3 px-4 font-medium text-muted-foreground">Title</th>
+              {canReadAll && (
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Author</th>
+              )}
+              <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
+              <th className="text-left py-3 px-4 font-medium text-muted-foreground">Created</th>
+              <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {posts.map((post) => (
+              <tr key={post.id} className="border-b border-border/10 hover:bg-accent/10">
+                <td className="py-3 px-4">
+                  <div>
+                    <Link 
+                      href={`/dashboard/posts/${post.id}`}
+                      className="font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {post.title}
                     </Link>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isLoading}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                        >
-                          Delete
+                    {post.excerpt && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                        {post.excerpt}
+                      </p>
+                    )}
+                  </div>
+                </td>
+                {canReadAll && (
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-7 w-7">
+                        <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                        <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                          {getInitials(post.author.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-muted-foreground">{post.author.name}</span>
+                    </div>
+                  </td>
+                )}
+                <td className="py-3 px-4">
+                  {canModifyPost(post) ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" disabled={isLoading} className="p-0 h-auto">
+                          {getStatusBadge(post.status)}
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Post</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete "{post.title}"? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(post.id)}
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleStatusChange(post.id, 'DRAFT')}
+                          className="cursor-pointer"
+                        >
+                          Draft
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleStatusChange(post.id, 'PUBLISHED')}
+                          className="cursor-pointer"
+                        >
+                          Published
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleStatusChange(post.id, 'ARCHIVED')}
+                          className="cursor-pointer"
+                        >
+                          Archived
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    getStatusBadge(post.status)
+                  )}
+                </td>
+                <td className="py-3 px-4 text-muted-foreground">
+                  {formatDate(post.createdAt)}
+                </td>
+                <td className="py-3 px-4 text-right">
+                  {canModifyPost(post) && (
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={`/dashboard/posts/${post.id}/edit`}>
+                        <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+                          Edit
+                        </Button>
+                      </Link>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={isLoading}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                           >
                             Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {posts.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          No posts found. Create your first post!
-        </div>
-      )}
-    </div>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{post.title}"? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(post.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }

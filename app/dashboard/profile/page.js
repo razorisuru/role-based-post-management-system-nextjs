@@ -21,8 +21,8 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-primary">Profile</h1>
-        <p className="text-muted-foreground mt-1">Manage your account information</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary">Profile</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage your account information</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
