@@ -202,6 +202,7 @@ export async function createPost(prevState, formData) {
 
   const validatedFields = PostSchema.safeParse({
     title: formData.get('title'),
+    slug: formData.get('slug'),
     content: formData.get('content'),
     excerpt: formData.get('excerpt') || null,
     status: formData.get('status') || 'DRAFT',
@@ -214,13 +215,14 @@ export async function createPost(prevState, formData) {
     }
   }
 
-  const { title, content, excerpt, status } = validatedFields.data
+  const { title, slug, content, excerpt, status } = validatedFields.data
   const user = await getCurrentUser()
 
   try {
     const post = await db.post.create({
       data: {
         title,
+        slug,
         content,
         excerpt,
         status,
@@ -261,6 +263,7 @@ export async function updatePost(id, prevState, formData) {
 
   const validatedFields = PostSchema.safeParse({
     title: formData.get('title'),
+    slug: formData.get('slug'),
     content: formData.get('content'),
     excerpt: formData.get('excerpt') || null,
     status: formData.get('status') || post.status,
@@ -273,13 +276,14 @@ export async function updatePost(id, prevState, formData) {
     }
   }
 
-  const { title, content, excerpt, status } = validatedFields.data
+  const { title, slug, content, excerpt, status } = validatedFields.data
 
   try {
     const updatedPost = await db.post.update({
       where: { id },
       data: {
         title,
+        slug,
         content,
         excerpt,
         status,

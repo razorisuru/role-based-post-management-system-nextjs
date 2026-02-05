@@ -1,35 +1,65 @@
-'use client'
+"use client";
 
-import { useActionState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { createPost } from '@/app/actions/posts'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createPost } from "@/app/actions/posts";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+} from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export function PostForm() {
-  const router = useRouter()
-  const [state, action, pending] = useActionState(createPost, undefined)
-  const [status, setStatus] = useState('DRAFT')
+  const router = useRouter();
+  const [state, action, pending] = useActionState(createPost, undefined);
+  const [status, setStatus] = useState("DRAFT");
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
+
+  const slugify = (value) =>
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const handleTitleChange = (e) => {
+    const nextTitle = e.target.value;
+    setTitle(nextTitle);
+    if (!slugTouched) {
+      setSlug(slugify(nextTitle));
+    }
+  };
+
+  const handleSlugChange = (e) => {
+    setSlugTouched(true);
+    setSlug(slugify(e.target.value));
+  };
 
   useEffect(() => {
     if (state?.success) {
-      toast.success('Post created successfully!')
-      router.push('/dashboard/posts')
+      toast.success("Post created successfully!");
+      router.push("/dashboard/posts");
     }
-  }, [state?.success, router])
+  }, [state?.success, router]);
 
   return (
     <Card className="border-border/30">
@@ -48,13 +78,17 @@ export function PostForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-foreground">Title</Label>
+            <Label htmlFor="title" className="text-foreground">
+              Title
+            </Label>
             <Input
               id="title"
               name="title"
               type="text"
               placeholder="Enter post title"
               required
+              value={title}
+              onChange={handleTitleChange}
               className="border-border/50 focus:border-primary focus:ring-primary"
             />
             {state?.errors?.title && (
@@ -63,7 +97,27 @@ export function PostForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="excerpt" className="text-foreground">Excerpt (Optional)</Label>
+            <Label htmlFor="slug" className="text-foreground">
+              Slug
+            </Label>
+            <Input
+              id="slug"
+              name="slug"
+              type="text"
+              placeholder="enter-post-slug"
+              required
+              value={slug}
+              onChange={handleSlugChange}
+              className="border-border/50 focus:border-primary focus:ring-primary"
+            />
+            {state?.errors?.slug && (
+              <p className="text-sm text-red-500">{state.errors.slug[0]}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="excerpt" className="text-foreground">
+              Excerpt (Optional)
+            </Label>
             <Input
               id="excerpt"
               name="excerpt"
@@ -77,7 +131,9 @@ export function PostForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content" className="text-foreground">Content</Label>
+            <Label htmlFor="content" className="text-foreground">
+              Content
+            </Label>
             <Textarea
               id="content"
               name="content"
@@ -92,7 +148,9 @@ export function PostForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status" className="text-foreground">Status</Label>
+            <Label htmlFor="status" className="text-foreground">
+              Status
+            </Label>
             <Select name="status" value={status} onValueChange={setStatus}>
               <SelectTrigger className="border-border/50">
                 <SelectValue placeholder="Select status" />
@@ -106,20 +164,24 @@ export function PostForm() {
 
           <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 pt-4">
             <Link href="/dashboard/posts" className="w-full sm:w-auto">
-              <Button type="button" variant="outline" className="w-full sm:w-auto border-border/50">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto border-border/50"
+              >
                 Cancel
               </Button>
             </Link>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={pending}
               className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              {pending ? 'Creating...' : 'Create Post'}
+              {pending ? "Creating..." : "Create Post"}
             </Button>
           </div>
         </CardContent>
       </form>
     </Card>
-  )
+  );
 }

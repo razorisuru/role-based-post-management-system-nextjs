@@ -64,6 +64,22 @@ export function EditPostForm({ post }) {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="slug" className="text-foreground">Slug</Label>
+            <Input
+              id="slug"
+              name="slug"
+              type="text"
+              defaultValue={post.slug}
+              placeholder="Enter post slug"
+              required
+              className="border-border/50 focus:border-primary focus:ring-primary"
+            />
+            {state?.errors?.slug && (
+              <p className="text-sm text-red-500">{state.errors.slug[0]}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="excerpt" className="text-foreground">Excerpt (Optional)</Label>
             <Input
               id="excerpt"
