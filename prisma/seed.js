@@ -209,6 +209,7 @@ async function main() {
     const statusIndex = i <= 70 ? 1 : (i <= 90 ? 0 : 2) // 70 published, 20 draft, 10 archived
     
     const title = `${postTitles[titleIndex]} - Part ${Math.ceil(i / postTitles.length)}`
+    const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
     const content = `${postContents[contentIndex]}\n\n${postContents[(contentIndex + 1) % postContents.length]}\n\nThis is post number ${i} in our series. Stay tuned for more content!`
     const excerpt = postContents[contentIndex].substring(0, 150) + '...'
     
@@ -220,6 +221,7 @@ async function main() {
         title,
         content,
         excerpt,
+        slug,
         status: statuses[statusIndex],
         authorId: createdUsers[authorIndex].id,
         publishedAt: statuses[statusIndex] === 'PUBLISHED' ? createdDate : null,

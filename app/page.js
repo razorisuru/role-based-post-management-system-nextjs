@@ -189,7 +189,7 @@ async function PostsContent({ page, user }) {
                       <p className="text-sm text-muted-foreground">Author</p>
                     </div>
                   </div>
-                  <Link href={`/posts/${featuredPost.id}`}>
+                  <Link href={`/posts/${featuredPost.slug}`}>
                     <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground mt-2">
                       Read Article
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +263,7 @@ async function PostsContent({ page, user }) {
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {remainingPosts.map((post) => (
-                  <Link key={post.id} href={`/posts/${post.id}`} className="group">
+                  <Link key={post.id} href={`/posts/${post.slug}`} className="group">
                     <Card className="h-full border-border/30 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
                       <div className="aspect-[16/9] bg-gradient-to-br from-accent/40 via-primary/10 to-accent/20 rounded-t-lg flex items-center justify-center">
                         <svg className="w-12 h-12 text-primary/30 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

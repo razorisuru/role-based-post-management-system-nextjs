@@ -24,8 +24,10 @@ CREATE TABLE "User" (
 CREATE TABLE "Post" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "excerpt" TEXT,
+    "image" TEXT,
     "status" "PostStatus" NOT NULL DEFAULT 'DRAFT',
     "authorId" TEXT NOT NULL,
     "publishedAt" TIMESTAMP(3),
@@ -88,6 +90,9 @@ CREATE INDEX "User_email_idx" ON "User"("email");
 
 -- CreateIndex
 CREATE INDEX "User_roleId_idx" ON "User"("roleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Post_slug_key" ON "Post"("slug");
 
 -- CreateIndex
 CREATE INDEX "Post_authorId_idx" ON "Post"("authorId");

@@ -7,6 +7,7 @@ import { verifySession, hasPermission, getCurrentUser } from '@/lib/dal'
 
 const PostSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(200, 'Title must be less than 200 characters'),
+  slug: z.string().min(3, 'Slug must be at least 3 characters').max(100, 'Slug must be less than 100 characters').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be URL-friendly (lowercase letters, numbers, and hyphens)'),
   content: z.string().min(10, 'Content must be at least 10 characters'),
   excerpt: z.string().max(500, 'Excerpt must be less than 500 characters').optional().nullable(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),

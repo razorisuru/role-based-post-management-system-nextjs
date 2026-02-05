@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator'
 export async function generateMetadata({ params }) {
   const { id } = await params
   const post = await db.post.findUnique({
-    where: { id, status: 'PUBLISHED' },
+    where: { slug: id, status: 'PUBLISHED' },
     select: { title: true, excerpt: true },
   })
 
@@ -31,7 +31,7 @@ export default async function PublicPostPage({ params }) {
   const user = await getCurrentUser()
 
   const post = await db.post.findUnique({
-    where: { id, status: 'PUBLISHED' },
+    where: { slug: id, status: 'PUBLISHED' },
     include: {
       author: {
         select: {

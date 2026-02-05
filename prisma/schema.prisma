@@ -41,8 +41,10 @@ enum UserStatus {
 model Post {
   id          String     @id @default(cuid())
   title       String
+  slug        String    @unique
   content     String
   excerpt     String?
+  image       String?
   status      PostStatus @default(DRAFT)
   authorId    String
   author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
